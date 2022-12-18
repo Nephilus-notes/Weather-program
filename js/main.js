@@ -19,15 +19,20 @@ const mainForecastColorObj = {
 const errorFunct = function () {
     console.log("there was an error")
     const errorMessage = document.createElement('div')
-    errorMessage.classList.add('card', 'mb-0', 'danger')
+    errorMessage.classList.add('errorMessage')
     errorMessage.innerHTML = `<h2>Your request could not be completed. Please try again. </h2>
     `
-    displayDiv.appendChild('errorMessage')
+
+    errorMessage.addEventListener(('click'), (e) => {
+        errorMessage.remove()
+    })
+    displayDiv.appendChild(errorMessage)
 
 }
 
 const getWeatherDataZipOrCity = async function(radioBtnAnswer, searchParameters) {
     if (radioBtnAnswer === 'cityName') {
+        console.log('By city')
         const weatherData = await getWeatherInfoByCityName(searchParameters) 
         return weatherData
     } else if (radioBtnAnswer === 'zipCode') {
@@ -40,9 +45,11 @@ const getWeatherDataZipOrCity = async function(radioBtnAnswer, searchParameters)
 
 const getWeatherInfoByCityName = async function(cityName) {
     try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=imperial`)
-        
+        console.log(`api.openweathermap.org/data/2.5/forecast?q=${cityName}&JSON&appid=${apiKey}&units=imperial`)
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&JSON&appid=${apiKey}&units=imperial`)
+        console.log("got it back, changing to json")
         const weatherData = await response.json()
+        console.log(weatherData)
         return weatherData
     }
     catch(err) {
@@ -52,7 +59,7 @@ const getWeatherInfoByCityName = async function(cityName) {
 
 const getWeatherInfoByZipCode = async function(zipCode) {
     try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${zipCode},us&appid=${apiKey}&units=imperial`)
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${zipCode},US&JSON&appid=${apiKey}&units=imperial`)
         const weatherData = await response.json()
         return weatherData
     }
@@ -61,7 +68,7 @@ const getWeatherInfoByZipCode = async function(zipCode) {
     }
 }
 
-// Weather Button //
+// Submit Button for search function //
 const weatherBtn = document.getElementById('showWeatherBtn')
 weatherBtn.addEventListener(('click'), (event) => {
     event.preventDefault()
@@ -86,32 +93,35 @@ const addWeatherBox = async function(radioAnswer, cityName) {
     const forecast = await getWeatherDataZipOrCity(radioAnswer, cityName)
     const weatherDisplayEl = document.createElement('div')
     console.log(forecast)
-    let tempMax = forecast.main.temp_max
-    let tempMin = forecast.main.temp_min
-    
-
+    console.log("into the weather box")
+    let tempMax = forecast.list[0].main.temp_max
+    let tempMin = forecast.list[0].main.temp_min
+    let currentHumidity = forecast.list[0].main.humidity
+    let forecastMain = forecast.list[0].weather[0].main
 
     displayDiv.innerHTML = `
-    <div class="card-header text-light border-dark"><strong>${forecast.name}</strong></div>
+    <div class="card-header text-light border-dark"><strong>${forecast.city.name}</strong></div>
     <div class="card-body">
     <div class="currentTempDiv">
-        <p class="currentTemp">${(forecast.main.temp).toFixed(1)}\u00B0</p>
-    <p class="feelsLike">Feels like: <strong>${forecast.main.feels_like}\u00B0</strong></p>
+        <p class="currentTemp">${(forecast.list[0].main.temp).toFixed(1)}\u00B0</p>
+    <p class="feelsLike">Feels like: <strong>${forecast.list[0].main.feels_like}\u00B0</strong></p>
         </div>
 
         <ul>
-            <li class="clickable dropdown-base card p-2 mb-3" id="high">Today's High: ${(tempMax).toFixed(1)}\u00B0</li>
-            <div class="dropdown-info moreInfo hidden"> <p>${forecast.name}
-                     ${forecast.weather[0].description}</p>
+             <div clickable dropdown-base>
+            <li class="clickable card p-2 mb-3" id="high">Today's High: ${(tempMax).toFixed(1)}\u00B0</li>
+            <div class="dropdown-info moreInfo hidden"> <p>${forecast.city.name}
+                     ${forecast.list[0].weather[0].description}</p>
+            </div>
             </div>
             <li class="clickable dropdown-base card p-2 mb-3" id="low">Today's Low: ${(tempMin).toFixed(1)}\u00B0</li>
-            <li class="clickable dropdown-base card p-2 mb-3" id="forecast">Today's Forecast: ${forecast.weather[0].main}</li>
-            <li class="clickable dropdown-base card p-2 mb-3" id="humidity">Current Humidity: ${forecast.main.humidity}%</li>
+            <li class="clickable dropdown-base card p-2 mb-3" id="forecast">Today's Forecast: ${forecastMain}</li>
+            <li class="clickable dropdown-base card p-2 mb-3" id="humidity">Current Humidity: ${currentHumidity}%</li>
         </ul>
     </div>
     </div>
     `
-
+    console.log("inner html set")
 //    let displayPorts = document.getElementsByClassName('dropdown-base')
 //     for (let displayPort of displayPorts){
 //     displayPort.addEventListener('click', (e) => {
@@ -141,13 +151,13 @@ const addWeatherBox = async function(radioAnswer, cityName) {
     currentForecast.style.color = 'white'
     currentForecast.classList.add('clouds')
 
-    if (forecast.main.humidity < 40) {
+    if (currentHumidity < 40) {
         humidity.classList.add('lowHumidity')
     }
-    else if (forecast.main.humidity >= 40 && forecast.main.humidity < 65) {
+    else if (currentHumidity >= 40 && currentHumidity < 65) {
         humidity.classList.add('mediumHumidity')
     }
-    else if (forecast.main.humidity >= 65) {
+    else if (currentHumidity >= 65) {
         humidity.classList.add('highHumidity')
     }
 
@@ -156,6 +166,6 @@ const addWeatherBox = async function(radioAnswer, cityName) {
 }
 
 // getWeatherInfoByCityName('London')
-addWeatherBox('cityName', 'st louis')
+addWeatherBox('cityName', 'denver')
 
 
