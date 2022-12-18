@@ -56,7 +56,8 @@ const getWeatherInfoByCityName = async function(cityName) {
 
 const getWeatherInfoByZipCode = async function(zipCode) {
     try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=,${zipCode}&appid=${apiKey}&units=imperial`)
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${zipCode},us&appid=${apiKey}&units=imperial`)
+        console.log(`https://api.openweathermap.org/data/2.5/weather?q=${zipCode},us&appid=${apiKey}&units=imperial`)
         const weatherData = await response.json()
         return weatherData
     }
