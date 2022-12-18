@@ -28,15 +28,12 @@ const errorFunct = function () {
 
 const getWeatherDataZipOrCity = async function(radioBtnAnswer, searchParameters) {
     if (radioBtnAnswer === 'cityName') {
-        console.log('getWeatherDataZipOrCity, ' + radioBtnAnswer, searchParameters)
         const weatherData = await getWeatherInfoByCityName(searchParameters) 
         return weatherData
     } else if (radioBtnAnswer === 'zipCode') {
-        console.log(radioBtnAnswer, searchParameters)
         const weatherData = await getWeatherInfoByZipCode(searchParameters) 
         return weatherData
     } else {
-        console.log(radioBtnAnswer, searchParameters)
         errorFunct()
     }
 }
@@ -44,9 +41,8 @@ const getWeatherDataZipOrCity = async function(radioBtnAnswer, searchParameters)
 const getWeatherInfoByCityName = async function(cityName) {
     try {
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=imperial`)
-        console.log(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=imperial`)
+        
         const weatherData = await response.json()
-        console.log((weatherData))
         return weatherData
     }
     catch(err) {
@@ -57,7 +53,6 @@ const getWeatherInfoByCityName = async function(cityName) {
 const getWeatherInfoByZipCode = async function(zipCode) {
     try {
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${zipCode},us&appid=${apiKey}&units=imperial`)
-        console.log(`https://api.openweathermap.org/data/2.5/weather?q=${zipCode},us&appid=${apiKey}&units=imperial`)
         const weatherData = await response.json()
         return weatherData
     }
@@ -71,11 +66,9 @@ const weatherBtn = document.getElementById('showWeatherBtn')
 weatherBtn.addEventListener(('click'), (event) => {
     event.preventDefault()
     const radioAnswers = document.getElementsByName('searchBy')
-    console.log(radioAnswers)
     let checkedRadioButton = null
     for (const radioAnswer of radioAnswers) {
         if (radioAnswer.checked) {
-            console.log(radioAnswer.id)
             checkedRadioButton = radioAnswer.id
         }
     }
@@ -83,15 +76,14 @@ weatherBtn.addEventListener(('click'), (event) => {
     let cityName = document.getElementsByName('searchParameters')[0]
     console.log(cityName.value)
     addWeatherBox(checkedRadioButton, cityName.value) 
-
+    cityName.placeholder = cityName.value
+    cityName.value = ''
 })
 
 
 
 const addWeatherBox = async function(radioAnswer, cityName) {
-    console.log("weatherbox start")
     const forecast = await getWeatherDataZipOrCity(radioAnswer, cityName)
-    console.log("forecast back")
     const weatherDisplayEl = document.createElement('div')
     console.log(forecast)
     let tempMax = forecast.main.temp_max
@@ -109,6 +101,9 @@ const addWeatherBox = async function(radioAnswer, cityName) {
 
         <ul>
             <li class="clickable dropdown-base card p-2 mb-3" id="high">Today's High: ${(tempMax).toFixed(1)}\u00B0</li>
+            <div class="dropdown-info moreInfo hidden"> <p>${forecast.name}
+                     ${forecast.weather[0].description}</p>
+            </div>
             <li class="clickable dropdown-base card p-2 mb-3" id="low">Today's Low: ${(tempMin).toFixed(1)}\u00B0</li>
             <li class="clickable dropdown-base card p-2 mb-3" id="forecast">Today's Forecast: ${forecast.weather[0].main}</li>
             <li class="clickable dropdown-base card p-2 mb-3" id="humidity">Current Humidity: ${forecast.main.humidity}%</li>
@@ -117,16 +112,19 @@ const addWeatherBox = async function(radioAnswer, cityName) {
     </div>
     `
 
-   
+//    let displayPorts = document.getElementsByClassName('dropdown-base')
+//     for (let displayPort of displayPorts){
+//     displayPort.addEventListener('click', (e) => {
+//         const moreInfo = document.createElement('div')
+//         moreInfo.classList.add('moreinfo')
 
-    weatherDisplayEl.addEventListener('click', (e) => {
-        // featuredEmployeeBuilder(name, jobTitle, skills)
-        // let oldFeature = document.querySelector('#employees .depressed')
-        // console.log(oldFeature)
-        // oldFeature?.classList.remove('depressed')
-        // driverEl.classList.add('depressed')
-    })
-
+//         moreInfo.innerHTML = `
+//         ${forecast.name}
+//         ${forecast.weather[0].description}
+//         `
+        
+//     })
+//     }
     
     //  Color Coding: //
     let high =  document.getElementById("high")

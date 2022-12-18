@@ -7,6 +7,18 @@
 
 .moreInfo {
     background-color: blue;
+    min-width: fit-content;
+    min-height: fit-content;
+    max-height: 200px;
+    max-width: 400px;
+    position: absolute;
+    z-index: 1;
+    padding:5px;
+    border-bottom-left-radius: .375rem;
+    border-bottom-right-radius: .375rem;
+    border-bottom: 10px inset green;
+    border-right: 10px inset green;
+    border-left: 10px inset green;
 }
 
 .locationInfo {
